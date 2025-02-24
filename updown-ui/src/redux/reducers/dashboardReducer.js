@@ -1,0 +1,70 @@
+import { handleActions } from 'redux-actions'
+import {
+  GET_FILES_INIT,
+  GET_FILES_SUCCESS,
+  GET_FILES_FAILURE,
+  UPLOAD_FILE_INIT,
+  UPLOAD_FILE_SUCCESS,
+  UPLOAD_FILE_FAILURE,
+} from '../actions/dashboardActions'
+
+const initialState = {
+  files: [],
+  totalNoOfFiles: 0,
+  getFilesInit: false,
+  getFilesError: null,
+  uploadFileInit: false,
+  uploadFileError: null,
+}
+
+const dashboardReducer = handleActions(
+  {
+    [GET_FILES_INIT]: (state, action) => {
+      return {
+        ...state,
+        getFilesInit: true,
+        getFilesError: null,
+      }
+    },
+    [GET_FILES_SUCCESS]: (state, action) => {
+      return {
+        ...state,
+        getFilesInit: false,
+        getFilesError: null,
+        files: action.payload.files,
+        totalNoOfFiles: action.payload.total,
+      }
+    },
+    [GET_FILES_FAILURE]: (state, action) => {
+      return {
+        ...state,
+        getFilesInit: false,
+        getFilesError: action.payload,
+      }
+    },
+    [UPLOAD_FILE_INIT]: (state, action) => {
+      return {
+        ...state,
+        uploadFileInit: true,
+        uploadFileError: null,
+      }
+    },
+    [UPLOAD_FILE_SUCCESS]: (state, action) => {
+      return {
+        ...state,
+        uploadFileInit: false,
+        uploadFileError: null,
+      }
+    },
+    [UPLOAD_FILE_FAILURE]: (state, action) => {
+      return {
+        ...state,
+        uploadFileInit: false,
+        uploadFileError: action.payload,
+      }
+    },
+  },
+  initialState
+)
+
+export default dashboardReducer
