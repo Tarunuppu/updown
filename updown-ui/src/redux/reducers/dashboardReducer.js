@@ -11,6 +11,7 @@ import {
 const initialState = {
   files: [],
   totalNoOfFiles: 0,
+  totalFilteredFiles: 0,
   getFilesInit: false,
   getFilesError: null,
   uploadFileInit: false,
@@ -32,7 +33,8 @@ const dashboardReducer = handleActions(
         getFilesInit: false,
         getFilesError: null,
         files: action.payload.files,
-        totalNoOfFiles: action.payload.total,
+        totalFilteredFiles: action.payload.total_filtered_files,
+        totalNoOfFiles: action.payload.total_files,
       }
     },
     [GET_FILES_FAILURE]: (state, action) => {

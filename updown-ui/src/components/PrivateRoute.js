@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import axios from 'axios'
 import urls from '../config/api'
+import Loading from './Loading'
 
 class PrivateRoute extends Component {
   constructor(props) {
@@ -32,7 +33,7 @@ class PrivateRoute extends Component {
     const { children } = this.props
 
     if (loading) {
-      return <h1>Loading...</h1>
+      return <Loading />
     }
     if (!isAuth) {
       window.location.href = '/login'

@@ -15,12 +15,21 @@ class DashboardService:
         return True
     
     @staticmethod
-    def list(user_id, sort_by='created_at', sort_order='asc', page_number=1, page_limit=10):
+    def get_total_files(user_id):
+        return UserFiles.query.filter_by(user_id=user_id).count()
+    
+
+    @staticmethod
+    def list(user_id, sort_by='created_at', sort_order='asc', page_number=1, page_limit=10, search_query=None):
         sort_order_func = getattr(UserFiles, sort_by)
         if sort_order == 'desc':
             sort_order_func = sort_order_func.desc()
         
-        query = UserFiles.query.filter_by(user_id=user_id).order_by(sort_order_func)
+        query = UserFiles.query.filter_by(user_id=user_id)
+        if search_query:
+            query = query.filter(UserFiles.file_name.ilike(f"%{search_query}%"))
+        
+        query = query.order_by(sort_order_func)
         paginated_files = query.paginate(page=page_number, per_page=page_limit, error_out=False)
         files = []
         s3_client = S3()
@@ -37,7 +46,7 @@ class DashboardService:
                 'download_url': download_url
             })
     
-        return jsonify({"total": paginated_files.total, "files": files})
+        return jsonify({"total_filtered_files": paginated_files.total, "files": files, "total_files": DashboardService.get_total_files(user_id)})
 
     @staticmethod
     def upload(user_id, files):

@@ -5,10 +5,20 @@ import { getFiles, uploadFile } from '../redux/actions/dashboardActions'
 import download from '../assets/download.png'
 import logout from '../assets/logout.png'
 import upload from '../assets/upload.png'
+import Loading from '../components/Loading'
 
 const Template = styled.div`
   height: 100vh;
   padding: 0 150px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+`
+
+const Body = styled.div`
+  width: 100%;
+  height: 90%;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -46,8 +56,15 @@ const NavBar = styled.div`
 `
 const UploadContainer = styled.div`
   width: 100%;
-  height: 15%;
+  height: ${(props) => (props.maximize ? '50%' : '20%')};
   display: flex;
+  flex-direction: column;
+  .upload-title {
+    font-size: 20px;
+    font-weight: bold;
+    font-style: italic;
+    text-align: center;
+  }
 `
 
 const Pagination = styled.div`
@@ -83,15 +100,34 @@ const Pagination = styled.div`
 
 const FilesContainer = styled.div`
   width: 100%;
-  height: 65%;
+  height: 70%;
   .file-title {
-    font-size: 2em;
+    font-size: 20px;
     font-weight: bold;
-    margin: 20px 0;
+    align-content: center;
+    position: absolute;
+    left: 0px;
+    height: 100%;
   }
   .files-list {
-    height: calc(100% - 138px);
+    height: calc(100% - 132px);
     overflow-y: auto;
+  }
+`
+
+const Header = styled.div`
+  display: flex;
+  flex-direction: row;
+  position: relative;
+  margin: 30px 0px 10px 0px;
+  justify-content: center;
+  align-items: center;
+  .search {
+    width: 400px;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    font-size: 16px;
   }
 `
 
@@ -100,24 +136,29 @@ const FileInput = styled.input`
 `
 
 const FileInputLabel = styled.label`
+  height: 100%;
   font-size: 16px;
   border-radius: 5px;
   cursor: pointer;
   margin: 5px 0;
-  width: 100%;
-  border: 1px dashed #e5d9f2;
-  background-color: #99d5e1;
+  width: calc(100% - 10px);
+  border: 5px dashed #cceaf0;
+  //   background-color: #f2f8ff;
   text-align: center;
   align-content: center;
   &:hover {
-    background-color: #66bbcb;
     img {
-      opacity: 1;
+      top: -5px;
+      height: 40px;
     }
   }
   img {
+    position: relative;
     height: 35px;
-    opacity: 0.5;
+    transition: height top 2s ease-in-out;
+  }
+  p {
+    margin: 5px 0px;
   }
 `
 
@@ -173,6 +214,17 @@ const FileItem = styled.div`
     }
   }
 `
+const Dropdown = styled.div`
+  .dropdown {
+    width: 100px;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+  }
+  position: absolute;
+  right: 0px;
+`
 
 class Dashboard extends Component {
   constructor(props) {
@@ -182,6 +234,7 @@ class Dashboard extends Component {
       filesPerPage: 10,
       orderBy: 'created_at',
       order: 'asc',
+      searchQuery: '',
     }
   }
   componentDidMount() {
@@ -197,18 +250,21 @@ class Dashboard extends Component {
 
   componentDidUpdate(prevProps, prevState) {
     const { getFiles } = this.props
-    const { currentPage, filesPerPage, orderBy, order } = this.state
+    const { currentPage, filesPerPage, orderBy, order, searchQuery } =
+      this.state
     if (
       prevState.currentPage !== currentPage ||
       prevState.filesPerPage !== filesPerPage ||
       prevState.orderBy !== orderBy ||
-      prevState.order !== order
+      prevState.order !== order ||
+      prevState.searchQuery !== searchQuery
     ) {
       getFiles({
         page_number: currentPage,
         page_limit: filesPerPage,
         sort_order: order,
         sort_by: orderBy,
+        search_query: searchQuery,
       })
     }
   }
@@ -263,6 +319,17 @@ class Dashboard extends Component {
     window.location.href = '/login'
   }
 
+  handleDropdownChange = (e) => {
+    this.setState({ filesPerPage: e.target.value })
+  }
+
+  handleSearch = (e) => {
+    let value = e.target.value
+    if (value.length >= 3) {
+      this.setState({ searchQuery: e.target.value })
+    }
+  }
+
   render() {
     const {
       filesLoading,
@@ -270,13 +337,14 @@ class Dashboard extends Component {
       files,
       uploadFileInit,
       uploadFileError,
+      totalFilteredFiles,
       totalNoOfFiles,
     } = this.props
 
     const { currentPage, filesPerPage } = this.state
 
     let userName = localStorage.getItem('user_name') || 'User'
-    let noOfPages = Math.ceil(totalNoOfFiles / filesPerPage)
+    let noOfPages = Math.ceil(totalFilteredFiles / filesPerPage)
     let filesList = files.map((file) => {
       return (
         <FileItem className="item" key={file.id}>
@@ -313,51 +381,108 @@ class Dashboard extends Component {
             <img src={logout} alt="logout" />
           </div>
         </NavBar>
-        <UploadContainer>
-          <FileInput
-            type="file"
-            id="file-upload"
-            onChange={this.handleFileUpload}
-            multiple
-          />
-          <FileInputLabel htmlFor="file-upload">
-            <img src={upload} alt="upload image" />
-          </FileInputLabel>
-        </UploadContainer>
-        <FilesContainer>
-          <div className="file-title">Files</div>
-          <FileItem>
-            <div className="field" onClick={this.handleOrder} name="file_name">
-              Name
-            </div>
-            <div className="field" onClick={this.handleOrder} name="file_type">
-              Type
-            </div>
-            <div className="field" onClick={this.handleOrder} name="file_size">
-              Size
-            </div>
-            <div className="field" onClick={this.handleOrder} name="created_at">
-              Created At
-            </div>
-            <div className="field" name="download"></div>
-          </FileItem>
-          <div className="files-list">
-            {filesLoading || filesError ? <p>Loading...</p> : filesList}
-          </div>
-        </FilesContainer>
-        <Pagination>
-          <button onClick={this.handlePrev} disabled={currentPage === 1}>
-            Previous
-          </button>
-          <span>
-            Page {currentPage} of {noOfPages}
-          </span>
-          <button
-            onClick={() => this.handleNext(noOfPages)}
-            disabled={currentPage === noOfPages}>
-            Next
-          </button>
-        </Pagination>
+        <Body>
+          <UploadContainer maximize={!totalNoOfFiles}>
+            {!totalNoOfFiles ? (
+              <div className="upload-title">Upload a file to get started</div>
+            ) : null}
+            <FileInput
+              type="file"
+              id="file-upload"
+              onChange={this.handleFileUpload}
+              multiple
+            />
+            <FileInputLabel htmlFor="file-upload">
+              {uploadFileInit ? (
+                <Loading />
+              ) : (
+                <>
+                  <img src={upload} alt="upload image" />
+                  <p>
+                    Supported file formats: JPG, JPEG, PNG, PDF, DOCX, JSON, and
+                    TXT
+                  </p>
+                </>
+              )}
+            </FileInputLabel>
+          </UploadContainer>
+          {totalNoOfFiles ? (
+            <>
+              <FilesContainer>
+                <Header>
+                  <div className="file-title">Files</div>
+                  <input
+                    type="text"
+                    placeholder="Search: Please enter at least 3 characters"
+                    className="search"
+                    onChange={this.handleSearch}
+                  />
+                  <Dropdown>
+                    <span>Files per page: </span>
+                    <select
+                      className="dropdown"
+                      value={filesPerPage}
+                      onChange={this.handleDropdownChange}>
+                      <option value="">Select an option</option>
+                      <option value="10">10</option>
+                      <option value="50">50</option>
+                      <option value="100">100</option>
+                    </select>
+                  </Dropdown>
+                </Header>
+                <FileItem>
+                  <div
+                    className="field"
+                    onClick={this.handleOrder}
+                    name="file_name">
+                    Name
+                  </div>
+                  <div
+                    className="field"
+                    onClick={this.handleOrder}
+                    name="file_type">
+                    Type
+                  </div>
+                  <div
+                    className="field"
+                    onClick={this.handleOrder}
+                    name="file_size">
+                    Size
+                  </div>
+                  <div
+                    className="field"
+                    onClick={this.handleOrder}
+                    name="created_at">
+                    Created At
+                  </div>
+                  <div className="field" name="download"></div>
+                </FileItem>
+                {totalFilteredFiles ? (
+                  <div className="files-list">
+                    {filesLoading || filesError ? <p>Loading...</p> : filesList}
+                  </div>
+                ) : null}
+              </FilesContainer>
+              {totalFilteredFiles > filesPerPage ? (
+                <Pagination>
+                  <button
+                    onClick={this.handlePrev}
+                    disabled={currentPage === 1}>
+                    Previous
+                  </button>
+                  <span>
+                    Page {currentPage} of {noOfPages}
+                  </span>
+                  <button
+                    onClick={() => this.handleNext(noOfPages)}
+                    disabled={currentPage === noOfPages}>
+                    Next
+                  </button>
+                </Pagination>
+              ) : null}
+            </>
+          ) : null}
+        </Body>
       </Template>
     )
   }
@@ -366,6 +491,7 @@ class Dashboard extends Component {
 const mapStateToProps = (state) => {
   return {
     files: state.dashboard.files,
+    totalFilteredFiles: state.dashboard.totalFilteredFiles,
     totalNoOfFiles: state.dashboard.totalNoOfFiles,
     filesLoading: state.dashboard.getFilesInit,
     filesError: state.dashboard.getFilesError,

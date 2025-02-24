@@ -29,7 +29,8 @@ def list(user_id):
     sort_order = data.get('sort_order') if data.get('sort_order') else 'asc'
     page_number = int(data.get('page_number')) if data.get('page_number') else 1
     page_limit = int(data.get('page_limit')) if data.get('page_limit') else 10
-    return DashboardService.list(user_id, sort_by, sort_order, page_number, page_limit)
+    search_query = data.get('search_query') if data.get('search_query') else None
+    return DashboardService.list(user_id, sort_by, sort_order, page_number, page_limit, search_query)
 
 
 
