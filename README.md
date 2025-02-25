@@ -25,6 +25,9 @@ If you encounter any issues during setup, please check:
 4. You have sufficient memory to deploy containers
 
 Windows Issue:
-Please ensure that the docker-entrypoint file use LF (`\n`) line endings instead of Windows-style CRLF (`\r\n`).
+
+1. Please ensure that the docker-entrypoint file use LF (`\n`) line endings instead of Windows-style CRLF (`\r\n`).
+
 Fix:
-In VS Code: Look at the bottom right of the editor window and click on "CRLF" to change it to "LF"
+
+1. In VS Code: Look at the bottom right of the editor window and click on "CRLF" to change it to "LF".
