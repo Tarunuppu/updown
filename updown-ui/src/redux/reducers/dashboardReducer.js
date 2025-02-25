@@ -6,6 +6,9 @@ import {
   UPLOAD_FILE_INIT,
   UPLOAD_FILE_SUCCESS,
   UPLOAD_FILE_FAILURE,
+  DELETE_FILE_INIT,
+  DELETE_FILE_SUCCESS,
+  DELETE_FILE_FAILURE,
 } from '../actions/dashboardActions'
 
 const initialState = {
@@ -16,6 +19,8 @@ const initialState = {
   getFilesError: null,
   uploadFileInit: false,
   uploadFileError: null,
+  deleteFileInit: false,
+  deleteFileError: null,
 }
 
 const dashboardReducer = handleActions(
@@ -63,6 +68,27 @@ const dashboardReducer = handleActions(
         ...state,
         uploadFileInit: false,
         uploadFileError: action.payload,
+      }
+    },
+    [DELETE_FILE_INIT]: (state, action) => {
+      return {
+        ...state,
+        deleteFileInit: true,
+        deleteFileError: null,
+      }
+    },
+    [DELETE_FILE_SUCCESS]: (state, action) => {
+      return {
+        ...state,
+        deleteFileInit: false,
+        deleteFileError: null,
+      }
+    },
+    [DELETE_FILE_FAILURE]: (state, action) => {
+      return {
+        ...state,
+        deleteFileInit: false,
+        deleteFileError: action.payload,
       }
     },
   },

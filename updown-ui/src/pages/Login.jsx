@@ -15,8 +15,9 @@ const Template = styled.div`
 
 const TextContainer = styled.div`
   width: 50%;
-  height: 80%;
-  border-left: 10px solid #00879e;
+  height: 50%;
+  border: 5px solid #00879e;
+  border-radius: 10px;
   padding-left: 50px;
   align-content: center;
   .text {
@@ -129,8 +130,8 @@ class Login extends Component {
     return (
       <Template>
         <TextContainer>
-          <div className="text">Simplified Box</div>
           <div className="app-title">UpDown</div>
+          <div className="text">Simplified Box</div>
         </TextContainer>
         {renderLoginPage ? (
           <LoginContainer>
@@ -153,7 +154,7 @@ class Login extends Component {
                 onChange={this.handleChange}
               />
               <Button type="submit">Login</Button>
-              <Span>Don't have a account?</Span>
+              <Span>New to UpDown?</Span>
               <Button type="button" onClick={this.toggleForm}>
                 Sign Up
               </Button>

@@ -1,10 +1,15 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import styled from 'styled-components'
-import { getFiles, uploadFile } from '../redux/actions/dashboardActions'
+import {
+  getFiles,
+  uploadFile,
+  deleteFile,
+} from '../redux/actions/dashboardActions'
 import download from '../assets/download.png'
 import logout from '../assets/logout.png'
 import upload from '../assets/upload.png'
+import Delete from '../assets/delete.png'
 import Loading from '../components/Loading'
 
 const Template = styled.div`
@@ -43,7 +48,7 @@ const NavBar = styled.div`
     justify-content: center;
     .text {
       font-size: 16px;
-      margin-right: 10px;
+      margin-left: 10px;
     }
     img {
       height: 35px;
@@ -183,7 +188,8 @@ const FileItem = styled.div`
           text-decoration: underline;
         }
       }
-      &.download {
+      &.download,
+      &.delete {
         img {
           cursor: pointer;
           height: 30px;
@@ -194,6 +200,11 @@ const FileItem = styled.div`
           }
         }
       }
+      &.delete {
+        img {
+          height: 25px;
+        }
+      }
       &:hover {
         text-decoration: none;
       }
@@ -201,14 +212,39 @@ const FileItem = styled.div`
   }
   .field {
     text-align: center;
-    width: calc(20% - 20px);
-    margin-right: 20px;
+    margin: 0px 5px;
     overflow: hidden;
     display: -webkit-box;
     -webkit-line-clamp: 1;
     -webkit-box-orient: vertical;
     text-overflow: ellipsis;
     cursor: pointer;
+    &.name {
+      width: calc(30% - 10px);
+    }
+    &.type {
+      width: calc(10% - 10px);
+    }
+    &.size {
+      width: calc(10% - 10px);
+    }
+    &.date {
+      width: calc(30% - 10px);
+    }
+    &.download {
+      cursor: default;
+      width: calc(10% - 10px);
+      &:hover {
+        text-decoration: none;
+      }
+    }
+    &.delete {
+      cursor: default;
+      width: calc(10% - 10px);
+      &:hover {
+        text-decoration: none;
+      }
+    }
     &:hover {
       text-decoration: underline;
     }
@@ -224,6 +260,23 @@ const Dropdown = styled.div`
   }
   position: absolute;
   right: 0px;
+`
+
+const Arrow = styled.span`
+  margin-left: 5px;
+  display: inline-block;
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-bottom: ${(props) =>
+    props.order === 'asc'
+      ? `5px solid ${props.active ? 'black' : 'grey'}`
+      : 'none'};
+  border-top: ${(props) =>
+    props.order === 'desc'
+      ? `5px solid ${props.active ? 'black' : 'grey'}`
+      : 'none'};
 `
 
 class Dashboard extends Component {
@@ -309,6 +362,11 @@ class Dashboard extends Component {
     }
   }
 
+  handleDelete = (fileName) => {
+    const { deleteFile } = this.props
+    deleteFile(fileName)
+  }
+
   handleView = (viewUrl, fileName) => {
     if (viewUrl) {
       window.open(viewUrl, '_blank')
@@ -325,9 +383,7 @@ class Dashboard extends Component {
 
   handleSearch = (e) => {
     let value = e.target.value
-    if (value.length >= 3) {
-      this.setState({ searchQuery: e.target.value })
-    }
+    this.setState({ searchQuery: e.target.value })
   }
 
   render() {
@@ -341,7 +397,7 @@ class Dashboard extends Component {
       totalNoOfFiles,
     } = this.props
 
-    const { currentPage, filesPerPage } = this.state
+    const { currentPage, filesPerPage, order, orderBy } = this.state
 
     let userName = localStorage.getItem('user_name') || 'User'
     let noOfPages = Math.ceil(totalFilteredFiles / filesPerPage)
@@ -356,9 +412,9 @@ class Dashboard extends Component {
             }}>
             {file.file_name}
           </div>
-          <div className="field">{file.type}</div>
-          <div className="field">{file.size}</div>
-          <div className="field" title={file.created_at}>
+          <div className="field type">{file.type}</div>
+          <div className="field size">{file.size}</div>
+          <div className="field date" title={file.created_at}>
             {file.created_at}
           </div>
           <div
@@ -367,6 +423,11 @@ class Dashboard extends Component {
               this.handleDownload(file.download_url, file.file_name)
             }>
             <img src={download} alt="download" />
+          </div>
+          <div
+            className="field delete"
+            onClick={() => this.handleDelete(file.file_name)}>
+            <img src={Delete} alt="delete" />
           </div>
         </FileItem>
       )
@@ -377,8 +438,8 @@ class Dashboard extends Component {
         <NavBar>
           <div className="greetings">Welcome {userName}!</div>
           <div className="logout" onClick={this.handleLogout}>
-            <div className="text">Logout</div>
             <img src={logout} alt="logout" />
+            <div className="text">Logout</div>
           </div>
         </NavBar>
         <Body>
@@ -413,7 +474,7 @@ class Dashboard extends Component {
                   <div className="file-title">Files</div>
                   <input
                     type="text"
-                    placeholder="Search: Please enter at least 3 characters"
+                    placeholder="Search"
                     className="search"
                     onChange={this.handleSearch}
                   />
@@ -432,34 +493,43 @@ class Dashboard extends Component {
                 </Header>
                 <FileItem>
                   <div
-                    className="field"
+                    className="field name"
                     onClick={this.handleOrder}
                     name="file_name">
                     Name
+                    <Arrow order={order} active={orderBy === 'file_name'} />
                   </div>
                   <div
-                    className="field"
+                    className="field type"
                     onClick={this.handleOrder}
                     name="file_type">
                     Type
+                    <Arrow order={order} active={orderBy === 'file_type'} />
                   </div>
                   <div
-                    className="field"
+                    className="field size"
                     onClick={this.handleOrder}
                     name="file_size">
                     Size
+                    <Arrow order={order} active={orderBy === 'file_size'} />
                   </div>
                   <div
-                    className="field"
+                    className="field date"
                     onClick={this.handleOrder}
                     name="created_at">
-                    Created At
+                    Date Uploaded
+                    <Arrow order={order} active={orderBy === 'created_at'} />
                   </div>
-                  <div className="field" name="download"></div>
+                  <div className="field download" name="download">
+                    Download
+                  </div>
+                  <div className="field delete" name="delete">
+                    Delete
+                  </div>
                 </FileItem>
                 {totalFilteredFiles ? (
                   <div className="files-list">
-                    {filesLoading || filesError ? <p>Loading...</p> : filesList}
+                    {filesLoading || filesError ? <Loading /> : filesList}
                   </div>
                 ) : null}
               </FilesContainer>
@@ -500,6 +570,6 @@ const mapStateToProps = (state) => {
   }
 }
 
-const mapDispatchToProps = { getFiles, uploadFile }
+const mapDispatchToProps = { getFiles, uploadFile, deleteFile }
 
 export default connect(mapStateToProps, mapDispatchToProps)(Dashboard)

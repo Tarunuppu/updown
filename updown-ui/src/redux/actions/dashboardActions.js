@@ -73,9 +73,54 @@ export const uploadFile = (files) => async (dispatch) => {
     if (error.response && error.response.status === 401) {
       alert('Session expired, please login again')
       window.location.href = '/login'
+    } else if (error.response && error.response.data) {
+      alert(error.response.data.message)
+      dispatch(uploadFileFailure(error))
     } else {
       alert('File upload failed, Please try again')
       dispatch(uploadFileFailure(error))
+    }
+  }
+}
+
+export const DELETE_FILE_INIT = 'DELETE_FILE_INIT'
+export const DELETE_FILE_SUCCESS = 'DELETE_FILE_SUCCESS'
+export const DELETE_FILE_FAILURE = 'DELETE_FILE_FAILURE'
+
+const deleteFileInit = createAction(DELETE_FILE_INIT)
+const deleteFileSuccess = createAction(DELETE_FILE_SUCCESS)
+const deleteFileFailure = createAction(DELETE_FILE_FAILURE)
+
+export const deleteFile = (fileName) => async (dispatch) => {
+  dispatch(deleteFileInit())
+  try {
+    let accessToken = localStorage.getItem('access_token')
+    if (!accessToken) {
+      alert('Token expired or not available, please login again')
+      window.location.href = '/login'
+    }
+    const response = await axios.delete(urls.base + 'dashboard/delete', {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+      data: {
+        file_name: fileName,
+      },
+    })
+    const data = response.data
+    dispatch(deleteFileSuccess(data))
+    dispatch(getFilesSuccess(data))
+    alert('File deleted successfully')
+  } catch (error) {
+    if (error.response && error.response.status === 401) {
+      alert('Session expired, please login again')
+      window.location.href = '/login'
+    } else if (error.response && error.response.data) {
+      alert(error.response.data.message)
+      dispatch(deleteFileFailure(error))
+    } else {
+      alert('File delete failed, Please try again')
+      dispatch(deleteFileFailure(error))
     }
   }
 }

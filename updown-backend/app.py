@@ -30,7 +30,7 @@ def create_app():
     app.register_blueprint(dashboard_api, url_prefix='/dashboard')
 
     allowed_origins = os.getenv('ALLOWED_ORIGINS').split(',')
-    CORS(app, origins=allowed_origins)
+    CORS(app, origins=allowed_origins, methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"])
 
     return app
 
