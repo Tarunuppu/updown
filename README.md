@@ -14,7 +14,7 @@ Installation Steps:
    Check the .env.example files in each directory to know the required environment variables.
 
 3. Build and Run with Docker once everything is set up, run the following command in the root directory:
-   **docker-compose up --build**. This will build the Docker containers and start the application.
+   1. **docker-compose up --build**. This will build the Docker containers and start the application.
 
 Troubleshooting
 If you encounter any issues during setup, please check:
