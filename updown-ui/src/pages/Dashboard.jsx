@@ -46,12 +46,19 @@ const NavBar = styled.div`
     flex-direction: row;
     align-items: center;
     justify-content: center;
+    border: 1px solid #cceaf0;
+    border-radius: 4px;
+    padding: 3px;
+    cursor: pointer;
+    &:hover {
+      background-color: #cceaf0;
+    }
     .text {
       font-size: 16px;
       margin-left: 10px;
     }
     img {
-      height: 35px;
+      height: 25px;
       opacity: 0.5;
       &:hover {
         opacity: 1;
@@ -252,7 +259,7 @@ const FileItem = styled.div`
 `
 const Dropdown = styled.div`
   .dropdown {
-    width: 100px;
+    width: 70px;
     padding: 10px;
     border-radius: 5px;
     border: 1px solid #ccc;
@@ -508,7 +515,9 @@ class Dashboard extends Component {
                     onClick={this.handleOrder}
                     name="file_name">
                     Name
-                    <Declare>*click on file name to view</Declare>
+                    <Declare name="file_name">
+                      *click on file name to view
+                    </Declare>
                     <Arrow order={order} active={orderBy === 'file_name'} />
                   </div>
                   <div
