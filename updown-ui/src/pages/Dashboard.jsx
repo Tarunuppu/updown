@@ -262,6 +262,12 @@ const Dropdown = styled.div`
   right: 0px;
 `
 
+const Declare = styled.span`
+  font-size: 11px;
+  font-style: italic;
+  font-weight: 300;
+  margin-left: 5px;
+`
 const Arrow = styled.span`
   margin-left: 5px;
   display: inline-block;
@@ -270,12 +276,17 @@ const Arrow = styled.span`
   border-left: 5px solid transparent;
   border-right: 5px solid transparent;
   border-bottom: ${(props) =>
-    props.order === 'asc'
-      ? `5px solid ${props.active ? 'black' : 'grey'}`
-      : 'none'};
+    props.active
+      ? props.order === 'asc'
+        ? '5px solid black'
+        : 'none'
+      : '5px solid grey'};
+
   border-top: ${(props) =>
-    props.order === 'desc'
-      ? `5px solid ${props.active ? 'black' : 'grey'}`
+    props.active
+      ? props.order === 'desc'
+        ? '5px solid black'
+        : 'none'
       : 'none'};
 `
 
@@ -497,6 +508,7 @@ class Dashboard extends Component {
                     onClick={this.handleOrder}
                     name="file_name">
                     Name
+                    <Declare>*click on file name to view</Declare>
                     <Arrow order={order} active={orderBy === 'file_name'} />
                   </div>
                   <div
