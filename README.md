@@ -10,10 +10,10 @@ Installation Steps:
 
 1. Clone the Repository (ssh: git@github.com:Tarunuppu/updown.git).
 
-2. Environment Variables Setup: You need to set up aws credentials inside updown-backend folder
-   Check the .env.example files in each directory to know the required environment variables.
+2. 1. Environment Variables Setup: You need to set up aws credentials inside updown-backend folder
+   2. Check the .env.example files in each directory to know the required environment variables.
 
-3. Build and Run with Docker once everything is set up, run the following command in the root directory:
+3. Once everything is set up, run the following command in the root directory:
    1. **docker-compose up --build**. This will build the Docker containers and start the application.
 
 Troubleshooting
