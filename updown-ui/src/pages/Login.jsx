@@ -92,12 +92,6 @@ class Login extends Component {
       renderLoginPage: true,
     }
   }
-  componentDidMount() {
-    let accessToken = localStorage.getItem('access_token')
-    if (accessToken) {
-      window.location.href = '/dashboard'
-    }
-  }
 
   handleLogin = (e) => {
     e.preventDefault()
